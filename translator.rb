@@ -10,8 +10,17 @@ class Translator
       'langpair' => "#{source_lang}|#{target_lang}" 
     }
 
-    response = RestClient.get(url, params: params)
-    translation = JSON.parse(response.body)["responseData"]["translatedText"]
+    begin
+      response = RestClient.get(BASE_URL, params: params)
+      translation = JSON.parse(response.body)["responseData"]["translatedText"]
+    rescue RestClient::ExceptionWithResponse => e
+      puts "Erro na solicitação HTTP: #{e.response}"
+      return nil
+    rescue JSON::ParserError => e
+      puts "Erro ao analisar a resposta JSON: #{e.message}"
+      return nil
+    end
+
     translation
   end
 end
